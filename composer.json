@@ -103,7 +103,8 @@
             "Neos.Kickstart-20161124230102",
             "Neos.Kickstarter-20161125110814",
             "Neos.Neos.Ui-20190319094900",
-            "Neos.Flow-20190425144900"
+            "Neos.Flow-20190425144900",
+            "Neos.Flow-20190515215000"
         ]
     }
 }
