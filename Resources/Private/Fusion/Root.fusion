@@ -1,4 +1,3 @@
-// TODO Neos.Fusion-20251006080506 Migration of Neos.Fusion:Collection to Neos.Fusion:Loop needs manual action. The key `collection` has to be renamed to `items` which cannot be done automatically
 include: resource://Neos.Fusion/Private/Fusion/Root.fusion
 include: resource://Neos.Neos/Private/Fusion/Backend/History/Root.fusion
 
@@ -36,7 +35,7 @@ prototype(AE.History:History.NodeEventRenderer) < prototype(AE.History:Template)
         }
 
         documentEvents = Neos.Fusion:Loop {
-            collection = ${documentEvents}
+            items = ${documentEvents}
             itemName = 'event'
 
             itemRenderer = Neos.Fusion:Case {
@@ -61,7 +60,7 @@ prototype(AE.History:History.NodeEventRenderer) < prototype(AE.History:Template)
             events {
                 condition = ${nodeIdentifier != null}
                 renderer = Neos.Fusion:Loop {
-                    collection = ${contentEvents}
+                    items = ${contentEvents}
                     itemName = 'event'
 
                     itemRenderer = Neos.Fusion:Case {
