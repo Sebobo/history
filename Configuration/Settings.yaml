@@ -10,15 +10,9 @@ Neos:
             privilegeTarget: 'AE.History:BackendModule'
             additionalResources:
               styleSheets:
-                - 'resource://AE.History/Public/Styles/Module.css'
-    userInterface:
-      requireJsPathMapping:
-        'AE.History/Views': 'resource://AE.History/Public/JavaScript'
-    Ui:
-      resources:
-        javascript:
-          'AE.History/Views/NodeInfoView':
-            resource: 'resource://AE.History/Public/JavaScript/NodeInfoView/Plugin.js'
+                'AE.History': 'resource://AE.History/Public/Styles/Module.css'
+              javaScripts:
+                'AE.History': 'resource://AE.History/Public/JavaScript/App.js'
 
   Flow:
     security:

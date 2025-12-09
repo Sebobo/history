@@ -168,19 +168,14 @@
             <f:if condition="{event.data.old}">
                 <ae:diff nodeEvent="{event}">
                     <f:if condition="{changes -> f:count()} > 0">
-                        <span
+                        <details
                             class="neos-history-event-details"
-                            data-neos-toggle="popover"
-                            data-placement="bottom"
-                            data-title="Modifications to <i class='{ae:nodeTypeIcon(
-                                nodeType: event.data.nodeType
-                            )}'></i> {event.data.nodeLabel}"
-                            data-html="true"
-                            data-content="{f:render(
-                                section: 'changes',
-                                arguments: {changes: changes}
-                            ) -> f:format.htmlentities()}"
-                        ><i class="icon-question-sign fas fa-question-circle"></i></span>
+                        >
+                            <summary>
+                                Modifications to <i class='fas fa-{ae:nodeTypeIcon(nodeType: event.data.nodeType)}'></i> {event.data.nodeLabel}
+                            </summary>
+                            {f:render(section: 'changes', arguments: {changes: changes})}
+                        </details>
                     </f:if>
                 </ae:diff>
             </f:if>
@@ -313,9 +308,9 @@
                 title="{f:render(section: 'documentBreadcrumb', arguments: {node: event.node})}"
                 data="{neos-toggle: 'tooltip'}"
             >
-                <i class="{ae:nodeTypeIcon(nodeType: event.data.documentNodeType)}"></i> {event.data.documentNodeLabel}
+                <i class="fas fa-{ae:nodeTypeIcon(nodeType: event.data.documentNodeType)}"></i> {event.data.documentNodeLabel}
             </f:link.action>
-            <neos:link.node node="{event.node}">
+            <neos:link.node node="{event.node}" target="_blank">
                 <i class="icon-external-link fas fa-external-link-alt"></i>
             </neos:link.node>
         </f:then>
@@ -335,7 +330,7 @@
                 )}"
                 data="{neos-toggle: 'tooltip'}"
             >
-                <i class="{ae:nodeTypeIcon(nodeType: event.data.documentNodeType)}"></i> {event.data.documentNodeLabel}
+                <i class="fas fa-{ae:nodeTypeIcon(nodeType: event.data.documentNodeType)}"></i> {event.data.documentNodeLabel}
             </f:link.action>
         </f:else>
     </f:if>
@@ -349,79 +344,6 @@
 
 <f:if condition="{nextPage}">
     <div class="loadMore" data-neos-history-nextpage="{nextPage -> f:format.raw()}">
-        <button>{neos:backend.translate(id: 'history.loadMore.label', source: 'Modules', package: 'Neos.Neos')}</button>
+        <button type="button" class="neos-button">{neos:backend.translate(id: 'history.loadMore.label', source: 'Modules', package: 'Neos.Neos')}</button>
     </div>
 </f:if>
-
-<script>
-    $(function () {
-        var $historyContainer,
-            $loadMore,
-            nextPage
-        ;
-
-        $('#siteIdentifier, #accountIdentifier').change(function () {
-            this.form.submit();
-        });
-
-        $historyContainer = $('.neos-history');
-        $loadMore = $('.loadMore');
-        nextPage = $loadMore.data('neos-history-nextpage');
-        $('button', $loadMore).click(function () {
-            $.ajax({
-                url: nextPage,
-                type: 'GET',
-            }).done(function (data) {
-                nextPage = $(data).find('.loadMore').data('neos-history-nextpage');
-                if (typeof nextPage === 'undefined') {
-                    $loadMore.hide();
-                }
-
-                var $days = $(data).find('.neos-history-day');
-                $days.each(function (index, day) {
-                    var date = $(day).data('date');
-                    var $existingDay = $('[data-date="' + date + '"]');
-
-                    if ($existingDay.length > 0) {
-                        $(day).find('.neos-history-event').each(function (index, event) {
-                            $existingDay.find('.neos-history-events').append(event);
-                        });
-                    } else {
-                        $historyContainer.append(day);
-                    }
-                    initializeBootstrap();
-                });
-            });
-        });
-
-        var initializeBootstrap = function () {
-            require(
-                {
-                    baseUrl: 'resource://Neos.Neos/Public/JavaScript',
-                    paths: requirePaths,
-                    context: 'neos',
-                    locale: 'en',
-                },
-                ['Library/jquery-with-dependencies'],
-                function ($) {
-                    $('[data-neos-toggle="popover"]').popover();
-                    $('[data-neos-toggle="tooltip"]').tooltip();
-                    $('[data-neos-toggle]').on('click', function () {
-                        $('[data-neos-toggle]').not(this).popover('hide');
-                    });
-                    $('body').on('click', function (e) {
-                        let $target = $(e.target);
-                        if ($target.data('neos-toggle') !== 'popover' &&
-                            $target.parents('[data-neos-toggle="popover"]').length === 0 &&
-                            $target.parents('.neos-popover.neos-in').length === 0
-                        ) {
-                            $('[data-neos-toggle]').popover('hide');
-                        }
-                    });
-                },
-            );
-        };
-
-        initializeBootstrap();
-    });
-</script>
