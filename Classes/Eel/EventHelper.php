@@ -1,55 +1,107 @@
 <?php
-namespace AE\History\ViewHelpers;
+
+declare(strict_types=1);
+
+namespace AE\History\Eel;
 
 use Neos\ContentRepository\Domain\Model\NodeType;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
+use Neos\ContentRepository\Exception\NodeTypeNotFoundException;
 use Neos\Diff\Diff;
 use Neos\Diff\Renderer\Html\HtmlArrayRenderer;
+use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\Annotations as Flow;
-use Neos\FluidAdaptor\Core\ViewHelper\AbstractViewHelper;
-use Neos\FluidAdaptor\Core\ViewHelper\Exception as ViewHelperException;
+use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Media\Domain\Model\AssetInterface;
 use Neos\Media\Domain\Model\ImageInterface;
-use Neos\Neos\EventLog\Domain\Model\NodeEvent;
+use Neos\Neos\Domain\Service\UserService as DomainUserService;
+use Neos\Neos\EventLog\Domain\Model\Event;
+use Neos\Neos\Service\UserService;
 
-/**
- * Renders the difference between the original and the changed content of the given node and returns it, along with meta
- * information, in an array.
- */
-class DiffViewHelper extends AbstractViewHelper
+class EventHelper implements ProtectedContextAwareInterface
 {
-    /**
-     * @var boolean
-     */
-    protected $escapeOutput = false;
 
     /**
-     * @Flow\Inject
-     * @var NodeTypeManager
+     * @var PersistenceManagerInterface
      */
-    protected $nodeTypeManager;
+    #[Flow\Inject]
+    protected $persistenceManager;
 
-    /**
-     * @return void
-     *
-     * @throws ViewHelperException
-     */
-    public function initializeArguments() : void
+    #[Flow\Inject]
+    protected UserService $userService;
+
+    #[Flow\Inject]
+    protected DomainUserService $domainUserService;
+
+    #[Flow\Inject]
+    protected NodeTypeManager $nodeTypeManager;
+
+    public function identifier(?Event $event): string
     {
-        parent::initializeArguments();
+        return (string)$this->persistenceManager->getIdentifierByObject($event);
+    }
 
-        $this->registerArgument('nodeEvent', NodeEvent::class, 'The NodeEvent to extract the diff from.', true);
+    public function userName(?Event $event, $format = 'fullName'): string
+    {
+        if (!$event || !$event->getAccountIdentifier()) {
+            return 'n/a';
+        }
+        $username = $event->getAccountIdentifier();
+        $requestedUser = $this->domainUserService->getUser($username);
+        if ($requestedUser === null || $requestedUser->getName() === null) {
+            return $username;
+        }
+
+        return match ($format) {
+            'initials' => mb_substr(
+                    preg_replace('/[^[:alnum:][:space:]]/u', '', $requestedUser->getName()->getFirstName()),
+                    0,
+                    1
+                ) . mb_substr(
+                    preg_replace('/[^[:alnum:][:space:]]/u', '', $requestedUser->getName()->getLastName()),
+                    0,
+                    1
+                ),
+            'fullFirstName' => trim(
+                $requestedUser->getName()->getFirstName() . ' ' . ltrim(
+                    mb_substr($requestedUser->getName()->getLastName(), 0, 1) . '.',
+                    '.'
+                )
+            ),
+            default => $requestedUser->getName()->getFullName(),
+        };
     }
 
     /**
-     * @return string
-     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     * @param array<Event> $events
+     * @return array<string, array<Event>>
      */
-    public function render() : string
+    public function groupByTime(array $events): array
     {
-        $data = $this->arguments['nodeEvent']->getData();
-        $old = $data['old'];
-        $new = $data['new'];
+        $groupedEvents = [];
+        foreach ($events as $event) {
+            $timestamp = $event->getTimestamp()->format('U');
+            if (!isset($groupedEvents[$timestamp])) {
+                $groupedEvents[$timestamp] = [$event];
+            } else {
+                $groupedEvents[$timestamp][] = $event;
+            }
+        }
+        return $groupedEvents;
+    }
+
+    /**
+     * @return array<string, array{diff: string, propertyLabel: string, changed: string, original: string, type: string}>
+     * @throws NodeTypeNotFoundException
+     */
+    public function changes(?Event $event): array
+    {
+        $data = $event?->getData();
+        if (!$data) {
+            return [];
+        }
+        $old = $data['old'] ?? null;
+        $new = $data['new'] ?? [];
         $nodeType = $this->nodeTypeManager->getNodeType($data['nodeType']);
         $changeNodePropertiesDefaults = $nodeType->getDefaultValuesForProperties();
 
@@ -116,21 +168,13 @@ class DiffViewHelper extends AbstractViewHelper
                 }
             }
         }
-        $this->templateVariableContainer->add('changes', $changes);
-        $content = $this->renderChildren();
-        $this->templateVariableContainer->remove('changes');
-        return $content;
+        return $changes;
     }
 
     /**
      * Tries to determine a label for the specified property
-     *
-     * @param string $propertyName
-     * @param NodeType $nodeType
-     *
-     * @return string
      */
-    protected function getPropertyLabel(string $propertyName, NodeType $nodeType) : string
+    protected function getPropertyLabel(string $propertyName, NodeType $nodeType): string
     {
         return $nodeType->getProperties()[$propertyName]['ui']['label'] ?? $propertyName;
     }
@@ -142,12 +186,8 @@ class DiffViewHelper extends AbstractViewHelper
      * Note: It's clear that this method needs to be extracted and moved to a more universal service at some point.
      * However, since we only implemented diff-view support for this particular controller at the moment, it stays
      * here for the time being. Once we start displaying diffs elsewhere, we should refactor the diff rendering part.
-     *
-     * @param mixed $propertyValue
-     *
-     * @return string
      */
-    protected function renderSlimmedDownContent($propertyValue) : string
+    protected function renderSlimmedDownContent(mixed $propertyValue): string
     {
         $content = '';
         if (is_string($propertyValue)) {
@@ -165,12 +205,8 @@ class DiffViewHelper extends AbstractViewHelper
      * This method will check if content in the given diff array is either completely new or has been completely
      * removed and wraps the respective part in <ins> or <del> tags, because the Diff Renderer currently does not
      * do that in these cases.
-     *
-     * @param array $diffArray
-     *
-     * @return void
      */
-    protected function postProcessDiffArray(array &$diffArray)
+    protected function postProcessDiffArray(array &$diffArray): void
     {
         foreach ($diffArray as $index => $blocks) {
             foreach ($blocks as $blockIndex => $block) {
@@ -188,5 +224,13 @@ class DiffViewHelper extends AbstractViewHelper
                 }
             }
         }
+    }
+
+    /**
+     * @param string $methodName
+     */
+    public function allowsCallOfMethod($methodName): bool
+    {
+        return true;
     }
 }

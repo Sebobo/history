@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace AE\History\Domain\Repository;
 
 use Neos\Flow\Annotations as Flow;
@@ -8,9 +11,8 @@ use Neos\Neos\EventLog\Domain\Repository\EventRepository;
 
 /**
  * The repository for events
- *
- * @Flow\Scope("singleton")
  */
+#[Flow\Scope('singleton')]
 class NodeEventRepository extends EventRepository
 {
     const ENTITY_CLASSNAME = NodeEvent::class;
@@ -21,11 +23,6 @@ class NodeEventRepository extends EventRepository
      * @param int $offset
      * @param int $limit
      * @param string $workspaceName
-     * @param string|null $siteIdentifier
-     * @param string|null $nodeIdentifier
-     * @param string|null $accountIdentifier
-     *
-     * @return QueryResultInterface
      */
     public function findRelevantEventsByWorkspace(
         $offset,
@@ -69,12 +66,6 @@ class NodeEventRepository extends EventRepository
 
     /**
      * Find all account identifiers that modified a specific site
-     *
-     * @param string $workspaceName
-     * @param string|null $siteIdentifier
-     * @param string|null $nodeIdentifier
-     *
-     * @return array
      */
     public function findAccountIdentifiers(
         string $workspaceName,
@@ -110,7 +101,7 @@ class NodeEventRepository extends EventRepository
         $dqlQuery = $this->createDqlQuery($dql);
         $dqlQuery->setParameters($query->getParameters());
 
-        return array_map(function($result) {
+        return array_map(static function($result) {
             return $result['accountIdentifier'];
         }, $dqlQuery->execute());
     }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace AE\History\Controller;
 
 use AE\History\Domain\Repository\NodeEventRepository;
@@ -26,46 +29,23 @@ class HistoryController extends AbstractModuleController
      */
     protected $defaultViewObjectName = FusionView::class;
 
-    /**
-     * @Flow\Inject
-     * @var DomainRepository
-     */
-    protected $domainRepository;
+    #[Flow\Inject]
+    protected DomainRepository $domainRepository;
 
-    /**
-     * @Flow\Inject
-     * @var NodeEventRepository
-     */
-    protected $nodeEventRepository;
+    #[Flow\Inject]
+    protected NodeEventRepository $nodeEventRepository;
 
-    /**
-     * @Flow\Inject
-     * @var Context
-     */
-    protected $securityContext;
+    #[Flow\Inject]
+    protected Context $securityContext;
 
-    /**
-     * @Flow\Inject
-     * @var SiteRepository
-     */
-    protected $siteRepository;
+    #[Flow\Inject]
+    protected SiteRepository $siteRepository;
 
-    /**
-     * @Flow\Inject
-     * @var UserService
-     */
-    protected $userService;
+    #[Flow\Inject]
+    protected UserService $userService;
 
     /**
      * Show event overview.
-     *
-     * @param int $offset
-     * @param int $limit
-     * @param string|null $siteIdentifier
-     * @param string|null $nodeIdentifier
-     * @param string|null $accountIdentifier
-     *
-     * @return void
      */
     public function indexAction(
         int $offset = 0,
@@ -73,7 +53,7 @@ class HistoryController extends AbstractModuleController
         string $siteIdentifier = null,
         string $nodeIdentifier = null,
         string $accountIdentifier = null
-    ) {
+    ): void {
         if ($nodeIdentifier === '') {
             $nodeIdentifier = null;
         }
@@ -91,12 +71,17 @@ class HistoryController extends AbstractModuleController
             }
         }
 
-        /** @var string[] $accounts */
+        /** @var array<string, string> $accounts */
         $accounts = [];
-        $accountIdentifiers = $this->nodeEventRepository->findAccountIdentifiers('live', $siteIdentifier ?: null, $nodeIdentifier ?: null);
+        $accountIdentifiers = $this->nodeEventRepository->findAccountIdentifiers(
+            'live',
+            $siteIdentifier ?: null,
+            $nodeIdentifier ?: null
+        );
         foreach ($accountIdentifiers as $identifier) {
             $user = $this->userService->getUser($identifier);
-            $accounts[$identifier] = $user ? $user->getName()->getLastName() . ', ' . $user->getName()->getFirstName() : $identifier;
+            $accounts[$identifier] = $user ? $user->getName()->getLastName() . ', ' . $user->getName()->getFirstName(
+                ) : $identifier;
         }
 
         /** @var NodeEvent[] $events */
@@ -109,8 +94,7 @@ class HistoryController extends AbstractModuleController
                 $nodeIdentifier,
                 $accountIdentifier ?: null
             )
-            ->toArray()
-        ;
+            ->toArray();
 
         $nextPage = null;
         if (count($events) > $limit) {
@@ -127,8 +111,7 @@ class HistoryController extends AbstractModuleController
                         'offset' => $offset + $limit,
                         'siteIdentifier' => $siteIdentifier,
                     ]
-                )
-            ;
+                );
         }
 
         /** @var EventsOnDate[] $eventsByDate */
@@ -176,12 +159,8 @@ class HistoryController extends AbstractModuleController
 
     /**
      * Simply sets the Fusion path pattern on the view.
-     *
-     * @param ViewInterface $view
-     *
-     * @return void
      */
-    protected function initializeView(ViewInterface $view)
+    protected function initializeView(ViewInterface $view): void
     {
         parent::initializeView($view);
         $view->setFusionPathPattern('resource://AE.History/Private/Fusion');

@@ -1,0 +1,68 @@
+prototype(AE.History:History.NodeEventRenderer) < prototype(Neos.Fusion:Component) {
+    accountIdentifier = ${accountIdentifier}
+    event = ${event}
+    nodeIdentifier = ${nodeIdentifier}
+    siteIdentifier = ${siteIdentifier}
+
+    content = Neos.Fusion:Join {
+        @context {
+            contentEvents = ${Neos.Array.filterNegated(event.childEvents, 'documentEvent')}
+            documentEvents = ${Neos.Array.filter(event.childEvents, 'documentEvent')}
+        }
+
+        documentEvents = Neos.Fusion:Loop {
+            items = ${documentEvents}
+            itemName = 'event'
+
+            itemRenderer = Neos.Fusion:Case {
+                default {
+                    condition = true
+                    type = ${'Neos.Neos:History.PublishedNode.' + event.eventType}
+                }
+            }
+        }
+
+        content = Neos.Fusion:Case {
+            changed {
+                condition = ${nodeIdentifier == null}
+                renderer = Neos.Neos:History.PublishedNode.ContentChanged {
+                    @if {
+                        documentNotRemoved = ${Array.first(documentEvents).eventType != 'Node.Removed'}
+                        hasContentEvents = ${Array.length(contentEvents) > 0}
+                    }
+                }
+            }
+
+            events {
+                condition = ${nodeIdentifier != null}
+                renderer = Neos.Fusion:Loop {
+                    items = ${contentEvents}
+                    itemName = 'event'
+
+                    itemRenderer = Neos.Fusion:Case {
+                        default {
+                            condition = true
+                            type = ${'Neos.Neos:History.PublishedNode.' + event.eventType}
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    renderer = afx`
+        <div class="neos-history-event">
+            <div class="neos-history-event-arrow"></div>
+            <h3 class="neos-history-event-title" @if={props.nodeIdentifier}>
+                <AE.History:Component.NodeLink
+                    event={props.event}
+                    accountIdentifier={props.accountIdentifier}
+                    siteIdentifier={props.siteIdentifier}
+                />
+            </h3>
+            <div class="neos-history-event-content">
+                {props.content}
+            </div>
+        </div>
+    `
+}

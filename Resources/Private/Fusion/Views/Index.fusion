@@ -1,0 +1,114 @@
+AE.History.HistoryController.index = Neos.Fusion:Component {
+    accountIdentifier = ${accountIdentifier}
+    eventsByDate = ${eventsByDate}
+    firstEvent = ${firstEvent}
+    nextPage = ${nextPage}
+    nodeIdentifier = ${nodeIdentifier}
+    siteIdentifier = ${siteIdentifier}
+    sites = ${sites}
+    accounts = ${accounts}
+
+    resetUri = Neos.Fusion:ActionUri {
+        action = 'index'
+        arguments {
+            accountIdentifier = ${accountIdentifier}
+            siteIdentifier = ${siteIdentifier}
+        }
+    }
+
+    i18n = ${I18n.id('').source('Main').package('AE.History')}
+
+    renderer = afx`
+        <div class="neos-history">
+            <legend>{i18n.id('history.messages.hereIsWhatHappenedRecentlyInNeos').source('Modules').package('Neos.Neos')}</legend>
+            <div class="neos-history-info">
+                <Neos.Fusion.Form:Form
+                    form.target.action="index"
+                    form.method="get"
+                    form.data.siteIdentifier={props.siteIdentifier}
+                    attributes.id="historyFilterForm"
+                >
+                    <div @if={props.sites}>
+                        <label for="siteIdentifier">
+                            {props.i18n.id('site').source('Main').package('Neos.Neos')}
+                        </label>
+                        <Neos.Fusion.Form:Select
+                            attributes.id="siteIdentifier"
+                            field.name="siteIdentifier"
+                            field.value={props.siteIdentifier}
+                        >
+                            <Neos.Fusion.Form:Select.Option option.value="">
+                                {props.i18n.id('site.all').source('Main').package('AE.History').translate()}
+                            </Neos.Fusion.Form:Select.Option>
+                            <Neos.Fusion:Loop items={sites} itemName="site">
+                                <Neos.Fusion.Form:Select.Option option.value={site}>
+                                    {site.name}
+                                </Neos.Fusion.Form:Select.Option>
+                            </Neos.Fusion:Loop>
+                        </Neos.Fusion.Form:Select>
+                    </div>
+
+                    <div @if={props.accounts}>
+                        <label for="accountIdentifier">
+                            {props.i18n.id('user.label').source('Modules').package('Neos.Neos')}
+                        </label>
+                        <Neos.Fusion.Form:Select
+                            attributes.id="accountIdentifier"
+                            field.name="accountIdentifier"
+                            field.value={props.accountIdentifier}
+                        >
+                            <Neos.Fusion.Form:Select.Option option.value="">
+                                {props.i18n.id('user.all').source('Main').package('AE.History').translate()}
+                            </Neos.Fusion.Form:Select.Option>
+                            <Neos.Fusion:Loop items={accounts} itemName="account" itemKey="identifier">
+                                <Neos.Fusion.Form:Select.Option option.value={identifier}>
+                                    {account}
+                                </Neos.Fusion.Form:Select.Option>
+                            </Neos.Fusion:Loop>
+                        </Neos.Fusion.Form:Select>
+                    </div>
+
+                    <div @if={props.nodeIdentifier}>
+                        <label>
+                            <b>{props.i18n.id('page').source('Main').package('Neos.Neos')}</b>
+                            <a href={props.resetUri} title={props.i18n.id('reset')}>
+                                <i class="icon-remove fas fa-times"></i>
+                            </a>
+                        </label>
+                        <input
+                            id="nodeIdentifier"
+                            type="hidden"
+                            name="moduleArguments[nodeIdentifier]"
+                            value="{nodeIdentifier}"
+                        />
+                        <AE.History:Component.NodeLink
+                            event={firstEvent}
+                            accountIdentifier={accountIdentifier}
+                            siteIdentifier={siteIdentifier}
+                            @if={firstEvent}
+                        />
+                        {firstEvent ? '' : props.i18n.id('unavailable')}
+                    </div>
+                </Neos.Fusion.Form:Form>
+            </div>
+
+            <Neos.Fusion:Loop items={props.eventsByDate} itemName="eventsOnSingleDay" iterationName="iteration">
+                <AE.History:History.HistoryDay
+                    eventsOnSingleDay={eventsOnSingleDay}
+                    accountIdentifier={props.accountIdentifier}
+                    siteIdentifier={props.siteIdentifier}
+                />
+            </Neos.Fusion:Loop>
+            <p @if={!props.eventsByDate}>
+                {props.id('history.messages.emptyHistory')}
+            </p>
+        </div>
+        <div class="neos-footer">
+            <div class="load-more" id="loadMore" data-neos-history-nextpage={props.nextPage}>
+                <button type="button" class="neos-button neos-button-success">
+                    {props.i18n.id('history.loadMore.label').source('Modules').package('Neos.Neos')}
+                </button>
+            </div>
+        </div>
+    `
+}

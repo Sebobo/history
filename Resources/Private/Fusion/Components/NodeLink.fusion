@@ -1,0 +1,52 @@
+prototype(AE.History:Component.NodeLink) < prototype(Neos.Fusion:Component) {
+    siteIdentifier = null
+    accountIdentifier = null
+    event = null
+
+    i18n = ${I18n.id('').source('Main').package('AE.History')}
+
+    @private {
+        documentHistoryUri = Neos.Fusion:ActionUri {
+            action = 'index'
+            arguments {
+                accountIdentifier = ${props.accountIdentifier}
+                nodeIdentifier = ${props.event.nodeIdentifier}
+                siteIdentifier = ${props.siteIdentifier}
+            }
+        }
+        breadcrumb = Neos.Fusion:Map {
+            items = ${q(props.event.node).parents('[instanceof Neos.Neos:Document]').get()}
+            items.@process.reverse = ${Array.reverse(value)}
+            items.@process.appendCurrent = ${Array.push(value, props.event.node)}
+            itemRenderer = ${Neos.Node.label(item)}
+            @process.join = ${Array.join(value, ' / ')}
+        }
+        nodeTypeIcon = ${'fas fa-' + AE.History.Node.icon(props.event.node)}
+    }
+
+    renderer = afx`
+        <Neos.Fusion:Fragment @if={props.event.node}>
+            <a
+                href={private.documentHistoryUri}
+                title={private.breadcrumb}
+            >
+                <i class={private.nodeTypeIcon}></i> {props.event.data.documentNodeLabel}
+            </a>
+            <Neos.Neos:NodeLink
+                node={props.event.node}
+                @context.documentNode={props.event.node}
+                attributes.target="_blank"
+            >
+                <i class="icon-external-link fas fa-external-link-alt"></i>
+            </Neos.Neos:NodeLink>
+        </Neos.Fusion:Fragment>
+
+        <a
+            @if={!props.event.node}
+            href={private.documentHistoryUri}
+            title={props.i18n.id('history.nodeRemovedInMeantime').source('Modules').package('Neos.Neos')}
+        >
+            <i class={private.nodeTypeIcon}></i> {props.event.data.documentNodeLabel}
+        </a>
+    `
+}

@@ -2,6 +2,7 @@ Neos:
   Neos:
     eventLog:
       enabled: true
+
     modules:
       management:
         submodules:
@@ -14,13 +15,8 @@ Neos:
               javaScripts:
                 'AE.History': 'resource://AE.History/Public/JavaScript/App.js'
 
-  Flow:
-    security:
-      authentication:
-        providers:
-          'Neos.Neos:Backend':
-            requestPatterns:
-              'AE.History:Controllers':
-                pattern: 'ControllerObjectName'
-                patternOptions:
-                  controllerObjectNamePattern: 'AE\History\Controller\.*'
+    userInterface:
+      translation:
+        autoInclude:
+          'AE.History':
+            - 'Main'

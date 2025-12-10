@@ -1,0 +1,43 @@
+prototype(AE.History:History.HistoryDay) < prototype(Neos.Fusion:Component) {
+    eventsOnSingleDay = ${[]}
+    accountIdentifier = null
+    siteIdentifier = null
+
+    @private {
+        eventsByTime = ${AE.History.Event.groupByTime(props.eventsOnSingleDay.events)}
+    }
+
+    renderer = afx`
+        <div class="neos-history-day" data-date={Date.format(props.eventsOnSingleDay.day, 'dmy')}>
+            <div class="neos-history-date">
+                <div
+                    class="neos-history-date-inner"
+                    title={Date.format(props.eventsOnSingleDay.day, 'Y')}
+                >
+                    {Date.format(props.eventsOnSingleDay.day, 'M d')}
+                </div>
+            </div>
+
+            <div class="neos-history-events neos-history-alignment">
+                <Neos.Fusion:Loop items={private.eventsByTime} itemName="eventsByTime" itemKey="timestamp">
+                    <div class="neos-history-date">
+                        <div
+                            class="neos-history-date-inner"
+                            title={Date.format(timestamp, 'H:i:s')}
+                        >
+                            {Date.format(timestamp, 'H:i')}
+                        </div>
+                    </div>
+
+                    <Neos.Fusion:Loop items={eventsByTime} itemName="event">
+                        <Neos.Neos:History.EventRenderer
+                            @context.accountIdentifier={props.accountIdentifier}
+                            @context.nodeIdentifier={event.nodeIdentifier}
+                            @context.siteIdentifier={props.siteIdentifier}
+                        />
+                    </Neos.Fusion:Loop>
+                </Neos.Fusion:Loop>
+            </div>
+        </div>
+    `
+}
