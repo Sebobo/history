@@ -52,7 +52,9 @@ class HistoryController extends AbstractModuleController
         int $limit = 25,
         string $siteIdentifier = null,
         string $nodeIdentifier = null,
-        string $accountIdentifier = null
+        string $accountIdentifier = null,
+        string $startDate = null,
+        string $endDate = null
     ): void {
         if ($nodeIdentifier === '') {
             $nodeIdentifier = null;
@@ -84,6 +86,26 @@ class HistoryController extends AbstractModuleController
                 ) : $identifier;
         }
 
+        // Parse date strings to DateTime objects
+        $startDateTime = null;
+        $endDateTime = null;
+        if ($startDate !== null && $startDate !== '') {
+            try {
+                $startDateTime = new \DateTime($startDate);
+                $startDateTime->setTime(0, 0, 0);
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+        if ($endDate !== null && $endDate !== '') {
+            try {
+                $endDateTime = new \DateTime($endDate);
+                $endDateTime->setTime(23, 59, 59);
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+
         /** @var NodeEvent[] $events */
         $events = $this->nodeEventRepository
             ->findRelevantEventsByWorkspace(
@@ -92,7 +114,9 @@ class HistoryController extends AbstractModuleController
                 'live',
                 $siteIdentifier ?: null,
                 $nodeIdentifier,
-                $accountIdentifier ?: null
+                $accountIdentifier ?: null,
+                $startDateTime,
+                $endDateTime
             )
             ->toArray();
 
@@ -110,6 +134,8 @@ class HistoryController extends AbstractModuleController
                         'nodeIdentifier' => $nodeIdentifier,
                         'offset' => $offset + $limit,
                         'siteIdentifier' => $siteIdentifier,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
                     ]
                 );
         }
@@ -154,6 +180,8 @@ class HistoryController extends AbstractModuleController
             'siteIdentifier' => $siteIdentifier,
             'sites' => $sites,
             'accounts' => $accounts,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
         ]);
     }
 

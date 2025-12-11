@@ -32,17 +32,12 @@
     }
 
     .neos-history-info {
-        float: left;
+        margin-bottom: 2rem;
 
-        .neos-tooltip-inner {
-            white-space: nowrap;
-            max-width: none;
-        }
-
-        & + p {
-            width: 100%;
-            margin-top: 20px;
-            float: left;
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
     }
 

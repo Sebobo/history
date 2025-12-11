@@ -7,6 +7,8 @@ AE.History.HistoryController.index = Neos.Fusion:Component {
     siteIdentifier = ${siteIdentifier}
     sites = ${sites}
     accounts = ${accounts}
+    startDate = ${startDate}
+    endDate = ${endDate}
 
     resetUri = Neos.Fusion:ActionUri {
         action = 'index'
@@ -20,7 +22,7 @@ AE.History.HistoryController.index = Neos.Fusion:Component {
 
     renderer = afx`
         <div class="neos-history">
-            <legend>{i18n.id('history.messages.hereIsWhatHappenedRecentlyInNeos').source('Modules').package('Neos.Neos')}</legend>
+            <legend>{props.i18n.id('history.messages.hereIsWhatHappenedRecentlyInNeos').source('Modules').package('Neos.Neos')}</legend>
             <div class="neos-history-info">
                 <Neos.Fusion.Form:Form
                     form.target.action="index"
@@ -66,6 +68,30 @@ AE.History.HistoryController.index = Neos.Fusion:Component {
                                 </Neos.Fusion.Form:Select.Option>
                             </Neos.Fusion:Loop>
                         </Neos.Fusion.Form:Select>
+                    </div>
+
+                    <div>
+                        <label for="startDate">
+                            {props.i18n.id('startDate.label').source('Main').package('AE.History').translate()}
+                        </label>
+                        <Neos.Fusion.Form:Input
+                            attributes.type="date"
+                            attributes.id="startDate"
+                            field.name="startDate"
+                            field.value={props.startDate}
+                        />
+                    </div>
+
+                    <div>
+                        <label for="endDate">
+                            {props.i18n.id('endDate.label').source('Main').package('AE.History').translate()}
+                        </label>
+                        <Neos.Fusion.Form:Input
+                            attributes.type="date"
+                            attributes.id="endDate"
+                            field.name="endDate"
+                            field.value={props.endDate}
+                        />
                     </div>
 
                     <div @if={props.nodeIdentifier}>

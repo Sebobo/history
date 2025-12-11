@@ -30,7 +30,9 @@ class NodeEventRepository extends EventRepository
         $workspaceName,
         string $siteIdentifier = null,
         string $nodeIdentifier = null,
-        string $accountIdentifier = null
+        string $accountIdentifier = null,
+        \DateTime $startDate = null,
+        \DateTime $endDate = null
     ) : QueryResultInterface {
         $query = $this->prepareRelevantEventsQuery();
         $queryBuilder = $query->getQueryBuilder();
@@ -56,6 +58,20 @@ class NodeEventRepository extends EventRepository
             $queryBuilder
                 ->andWhere('e.accountIdentifier = :accountIdentifier')
                 ->setParameter('accountIdentifier', $accountIdentifier)
+            ;
+        }
+        if ($startDate !== null) {
+            $queryBuilder
+                ->andWhere('e.timestamp >= :startDate')
+                ->setParameter('startDate', $startDate)
+            ;
+        }
+        if ($endDate !== null) {
+            // Set end date to end of day (23:59:59)
+            $endDate->setTime(23, 59, 59);
+            $queryBuilder
+                ->andWhere('e.timestamp <= :endDate')
+                ->setParameter('endDate', $endDate)
             ;
         }
         $queryBuilder->setFirstResult($offset);

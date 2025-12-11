@@ -7,6 +7,10 @@ window.addEventListener('load', () => {
     const siteIdentifier = document.getElementById('siteIdentifier');
     /** @type {HTMLSelectElement} */
     const accountIdentifier = document.getElementById('accountIdentifier');
+    /** @type {HTMLInputElement} */
+    const startDate = document.getElementById('startDate');
+    /** @type {HTMLInputElement} */
+    const endDate = document.getElementById('endDate');
 
     if (siteIdentifier) {
         siteIdentifier.addEventListener('change', () => filterForm.submit());
@@ -14,6 +18,14 @@ window.addEventListener('load', () => {
 
     if (accountIdentifier) {
         accountIdentifier.addEventListener('change', () => filterForm.submit());
+    }
+
+    if (startDate) {
+        startDate.addEventListener('change', () => filterForm.submit());
+    }
+
+    if (endDate) {
+        endDate.addEventListener('change', () => filterForm.submit());
     }
 
     historyContainer = document.querySelector('.neos-history');
