@@ -32,7 +32,7 @@ AE.History.HistoryController.index = Neos.Fusion:Component {
                 >
                     <div @if={props.sites}>
                         <label for="siteIdentifier">
-                            {props.i18n.id('site').source('Main').package('Neos.Neos')}
+                            {props.i18n.id('site').source('Main').package('AE.History')}
                         </label>
                         <Neos.Fusion.Form:Select
                             attributes.id="siteIdentifier"

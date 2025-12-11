@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file original="" product-name="AE.History" source-language="en" datatype="plaintext">
+    <file original="" product-name="AE.History" source-language="en" target-language="de" datatype="plaintext">
         <body>
             <trans-unit id="site" xml:space="preserve">
                 <source>Site</source>
+                <target>Seite</source>
             </trans-unit>
             <trans-unit id="site.all" xml:space="preserve">
                 <source>All</source>
+                <target>Alle</source>
             </trans-unit>
             <trans-unit id="user.all" xml:space="preserve">
                 <source>All</source>
+                <target>Alle</source>
             </trans-unit>
             <trans-unit id="startDate.label" xml:space="preserve">
                 <source>Start Date</source>
+                <target>Startdatum</source>
             </trans-unit>
             <trans-unit id="endDate.label" xml:space="preserve">
                 <source>End Date</source>
+                <target>Enddatum</source>
             </trans-unit>
         </body>
     </file>
