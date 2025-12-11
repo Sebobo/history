@@ -1,29 +1,11 @@
 /* Color palette and sizes as CSS custom properties */
 :root {
-    --gray-darker: #141414;
-    --gray-dark: #222;
-    --gray-medium: #323232;
-    --gray-light: #3f3f3f;
-    --gray-lighter: #eee;
-    --blue-dark: #007fb2;
-    --green: #00a338;
-    --warning: #ff460d;
-    --unit: 40px;
-    --default-margin: 16px;
-    --related-margin: 8px;
-    --tight-margin: 4px;
-    --wide-margin: 32px;
+    --avatar-size: 32px;
 }
 
 .neos.neos-module.neos-module-management-history {
     .neos-history {
         max-width: none;
-
-        &::after {
-            display: block;
-            content: "";
-            clear: both;
-        }
     }
 
     .load-more {
@@ -41,32 +23,98 @@
         }
     }
 
+    .neos-content-diff {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-Full);
+        padding-top: var(--spacing-Half);
+
+        .neos-content-diff__change {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-Half);
+            border-bottom: 1px solid var(--grayLight);
+            padding-bottom: var(--spacing-Half);
+
+            strong {
+                font-weight: bold;
+            }
+        }
+
+        .neos-content-diff__block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background-color: white;
+            color: var(--textOnWhite);
+
+            ins,
+            ins a {
+                color: var(--successText);
+                text-decoration: none;
+            }
+
+            del,
+            del a {
+                color: var(--errorText);
+                text-decoration: none;
+            }
+        }
+
+        .neos-content-diff__block__base {
+            padding: 1rem;
+            border-right: 1px solid var(--grayLight);
+            position: relative;
+
+            &::after {
+                content: "";
+                position: absolute;
+                top: 50%;
+                right: -10px;
+                transform: translateY(-50%);
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 10px 0 10px 10px;
+                border-color: transparent transparent transparent var(--grayLight);
+                z-index: 1;
+            }
+        }
+
+        .neos-content-diff__block__changed {
+            padding: 1rem;
+        }
+    }
+
     .neos-history-day {
+        .neos-history-date {
+            margin-left: 0;
+        }
+
         .neos-history-events {
-            padding-top: var(--default-margin);
+            padding-top: var(--spacing-Full);
+            width: auto;
 
             .neos-history-date {
-                margin-bottom: var(--default-margin);
+                margin-bottom: var(--spacing-Full);
 
                 .neos-history-date-inner {
-                    line-height: var(--unit);
-                    width: var(--unit);
-                    height: var(--unit);
-                    margin-left: calc(-1 * (var(--unit) / 2 + 2px));
+                    line-height: var(--spacing-GoldenUnit);
+                    width: var(--spacing-GoldenUnit);
+                    height: var(--spacing-GoldenUnit);
+                    margin-left: calc(-1 * (var(--spacing-GoldenUnit) / 2 + 2px));
                     font-size: 12px;
-                    background: var(--gray-light);
+                    background: var(--grayLight);
                 }
             }
 
             .neos-history-event {
                 padding-top: 0;
                 padding-right: 0;
-                margin-bottom: var(--default-margin);
-                background-color: var(--gray-medium);
-                -webkit-background-clip: padding-box;
-                -moz-background-clip: padding;
+                margin-bottom: var(--spacing-Full);
+                background-color: var(--grayMedium);
                 background-clip: padding-box;
-                border: 1px solid var(--gray-light);
+                border: 1px solid var(--grayLight);
                 box-shadow: none;
 
                 &::after {
@@ -95,13 +143,13 @@
 
                 .neos-history-event-title {
                     margin: 0;
-                    padding: calc(var(--default-margin) - 3px) calc(var(--default-margin) - var(--tight-margin));
+                    padding: calc(var(--spacing-Full) - 3px) calc(var(--spacing-Full) - var(--spacing-Quarter));
                     font-size: 14px;
                     line-height: 14px;
                     font-weight: bold;
                     color: #fff;
-                    background-color: var(--gray-dark);
-                    border-bottom: 1px solid var(--gray-light);
+                    background-color: var(--grayDark);
+                    border-bottom: 1px solid var(--grayLight);
 
                     &:empty {
                         display: none;
@@ -118,7 +166,7 @@
                 }
 
                 .neos-history-event-content {
-                    padding: var(--related-margin) calc(var(--related-margin) + var(--tight-margin));
+                    padding: var(--spacing-Half) calc(var(--spacing-Half) + var(--spacing-Quarter));
                     display: flex;
                     flex-direction: column;
                     gap: .5em;
@@ -130,130 +178,68 @@
                     align-items: baseline;
 
                     & + .neos-history-sub-event {
-                        margin-top: var(--related-margin);
+                        margin-top: var(--spacing-Half);
                     }
                 }
 
                 .neos-history-event-user {
                     border-radius: 50%;
-                    width: var(--wide-margin);
-                    height: var(--wide-margin);
+                    width: var(--avatar-size);
+                    height: var(--avatar-size);
                     margin-right: 0;
                     float: none;
                     border: none;
-                    background: var(--blue-dark);
+                    background: var(--blueDark);
                     overflow: hidden;
                     text-align: center;
-                    line-height: var(--wide-margin);
+                    line-height: var(--avatar-size);
                     font-size: 12px;
                     justify-content: center;
                     flex-shrink: 0;
                 }
 
                 .neos-history-event-description {
-                    padding: var(--tight-margin) 0 var(--tight-margin) var(--default-margin);
+                    padding: var(--spacing-Quarter) 0 var(--spacing-Quarter) var(--spacing-Full);
                     margin-right: 0;
                     line-height: 1.4;
+                    flex: 1;
 
                     a {
                         text-decoration: underline;
                     }
 
                     .neos-history-event-details {
-                        cursor: pointer;
                         user-select: none;
                         width: 100%;
                         overflow-x: auto;
-                        margin-top: var(--related-margin);
+                        margin-top: var(--spacing-Half);
 
                         summary {
                             line-height: normal;
+                            cursor: pointer;
 
                             i {
                                 vertical-align: top;
                             }
                         }
-
-                        table {
-                            width: 100%;
-
-                            th {
-                                text-align: center;
-                                font-weight: bold;
-                            }
-
-                            td,
-                            th {
-                                height: auto;
-                                padding: var(--related-margin);
-                                line-height: 1;
-
-                                &:first-child {
-                                    padding-left: 0 !important;
-                                }
-
-                                &:last-child {
-                                    padding-right: 0 !important;
-                                }
-                            }
-
-                            td td {
-                                width: 50%;
-                                border: none;
-                            }
-
-                            ins,
-                            ins a {
-                                color: var(--green);
-                                text-decoration: none;
-                            }
-
-                            del,
-                            del a {
-                                color: var(--warning);
-                                text-decoration: none;
-                            }
-                        }
                     }
                 }
             }
         }
 
-        &:nth-child(even) {
-            .neos-history-events.neos-history-alignment {
-                .neos-history-date {
-                    margin-left: 100%;
-                }
-
-                .neos-history-event {
-                    margin-right: 10px;
-                }
-
-                .neos-history-event-arrow {
-                    top: 20px;
-                    right: -10px;
-                    margin-top: -10px;
-                    border-width: 10px 0 10px 10px;
-                    border-left-color: var(--gray-medium);
-
-                    &:after {
-                        border-width: 11px 0 11px 11px;
-                        border-left-color: var(--gray-light);
-                        bottom: -11px;
-                        right: -1px;
-                    }
-                }
-            }
-        }
-
+        &:nth-child(even),
         &:nth-child(odd) {
             .neos-history-events.neos-history-alignment {
-                .neos-history-date {
-                    margin-left: -4px;
-                }
+                margin-left: 0;
+                border-left: 4px solid var(--grayMedium);
+                border-right: 0;
 
                 .neos-history-event {
                     margin-left: 10px;
+                }
+
+                .neos-history-date {
+                    margin-left: -4px;
                 }
 
                 .neos-history-event-arrow {
@@ -261,11 +247,11 @@
                     left: -10px;
                     margin-top: -10px;
                     border-width: 10px 10px 10px 0;
-                    border-right-color: var(--gray-medium);
+                    border-right-color: var(--grayMedium);
 
                     &:after {
                         border-width: 11px 11px 11px 0;
-                        border-right-color: var(--gray-light);
+                        border-right-color: var(--grayLight);
                         bottom: -11px;
                         left: -1px;
                     }

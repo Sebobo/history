@@ -1,0 +1,22 @@
+prototype(AE.History:Component.Change.Text) < prototype(Neos.Fusion:Component) {
+    change = null
+
+    renderer = afx`
+        <Neos.Fusion:Loop items={props.change.diff} itemName="blocks">
+            <Neos.Fusion:Loop items={blocks} itemName="block">
+                <div class="neos-content-diff__block">
+                    <div class="neos-content-diff__block__base">
+                        <Neos.Fusion:Loop items={block.base.lines} itemName="line">
+                            {line}
+                        </Neos.Fusion:Loop>
+                    </div>
+                    <div class="neos-content-diff__block__changed">
+                        <Neos.Fusion:Loop items={block.changed.lines} itemName="line">
+                            {line}
+                        </Neos.Fusion:Loop>
+                    </div>
+                </div>
+            </Neos.Fusion:Loop>
+        </Neos.Fusion:Loop>
+    `
+}

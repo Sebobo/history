@@ -119,7 +119,7 @@ AE.History.HistoryController.index = Neos.Fusion:Component {
             </div>
 
             <Neos.Fusion:Loop items={props.eventsByDate} itemName="eventsOnSingleDay" iterationName="iteration">
-                <AE.History:History.HistoryDay
+                <AE.History:Component.HistoryDay
                     eventsOnSingleDay={eventsOnSingleDay}
                     accountIdentifier={props.accountIdentifier}
                     siteIdentifier={props.siteIdentifier}

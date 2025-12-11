@@ -1,4 +1,4 @@
-prototype(AE.History:History.NodeEventRenderer) < prototype(Neos.Fusion:Component) {
+prototype(AE.History:Component.NodeEventRenderer) < prototype(Neos.Fusion:Component) {
     accountIdentifier = ${accountIdentifier}
     event = ${event}
     nodeIdentifier = ${nodeIdentifier}

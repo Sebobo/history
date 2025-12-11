@@ -39,95 +39,17 @@ prototype(Neos.Neos:History.PublishedNode.AbstractSubEvent) < prototype(Neos.Fus
                     @if={props.event.data.old && private.changes}
                 >
                     <summary>{private.description}</summary>
-                    <table class="neos-content-diff">
+                    <div class="neos-content-diff">
                         <Neos.Fusion:Loop items={private.changes} itemName="change">
-                            <tr>
-                                <th colspan="3">{change.propertyLabel}</th>
-                            </tr>
-                            <tr>
-                                <td colspan="3">
-                                    <table @if={change.type == 'text'}>
-                                        <Neos.Fusion:Loop items={change.diff} itemName="blocks">
-                                            <Neos.Fusion:Loop items={blocks} itemName="block">
-                                                <tr>
-                                                    <td>
-                                                        <Neos.Fusion:Loop items={block.base.lines} itemName="line">
-                                                            {line}
-                                                        </Neos.Fusion:Loop>
-                                                    </td>
-                                                    <td>
-                                                        <Neos.Fusion:Loop items={block.changed.lines} itemName="line">
-                                                            {line}
-                                                        </Neos.Fusion:Loop>
-                                                    </td>
-                                                </tr>
-                                            </Neos.Fusion:Loop>
-                                        </Neos.Fusion:Loop>
-                                    </table>
-
-                                    <table @if={change.type == 'image'}>
-                                        <tr>
-                                            <td>
-                                                <Neos.Fusion:Fragment @if={change.original}>
-                                                    <Neos.Neos:ImageTag
-                                                        asset={change.original}
-                                                        allowCropping={false}
-                                                        maximumWidth={500}
-                                                        maximumHeight={500}
-                                                    />
-                                                </Neos.Fusion:Fragment>
-                                            </td>
-                                            <td>
-                                                <Neos.Fusion:Fragment @if={change.changed}>
-                                                    <Neos.Neos:ImageTag
-                                                        @if={change.changed}
-                                                        asset={change.changed}
-                                                        allowCropping={false}
-                                                        maximumWidth={500}
-                                                        maximumHeight={500}
-                                                    />
-                                                </Neos.Fusion:Fragment>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                    <table @if={change.type == 'asset'}>
-                                        <tr>
-                                            <td>
-                                                <del @if={change.original}>
-                                                    <Neos.Fusion:Link.Resource
-                                                        href.resource={change.original.resource}
-                                                    >
-                                                        {change.original.resource.filename}
-                                                    </Neos.Fusion:Link.Resource>
-                                                </del>
-                                            </td>
-                                            <td>
-                                                <ins @if={change.changed}>
-                                                    <Neos.Fusion:Link.Resource
-                                                        href.resource={change.changed.resource}
-                                                    >
-                                                        {change.changed.resource.filename}
-                                                    </Neos.Fusion:Link.Resource>
-                                                </ins>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                    <table @if={change.type == 'datetime'}>
-                                        <tr>
-                                            <td>
-                                                {Date.format(change.original, 'd.m.Y H:i:s')}
-                                            </td>
-                                            <td>
-                                                {Date.format(change.changed, 'd.m.Y H:i:s')}
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
+                            <div class="neos-content-diff__change">
+                                <strong>{change.propertyLabel}</strong>
+                                <AE.History:Component.Change.Text change={change} @if={change.type == 'text'}/>
+                                <AE.History:Component.Change.Image change={change} @if={change.type == 'image'}/>
+                                <AE.History:Component.Change.Asset change={change} @if={change.type == 'asset'}/>
+                                <AE.History:Component.Change.DateTime change={change} @if={change.type == 'datetime'}/>
+                            </div>
                         </Neos.Fusion:Loop>
-                    </table>
+                    </div>
                 </details>
             </div>
         </div>
