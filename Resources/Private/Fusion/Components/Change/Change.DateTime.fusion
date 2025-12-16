@@ -1,0 +1,5 @@
+prototype(AE.History:Component.Change.DateTime) < prototype(Neos.Fusion:Component) {
+    dateTime = null
+
+    renderer = ${Date.format(props.dateTime, 'd.m.Y H:i:s')}
+}

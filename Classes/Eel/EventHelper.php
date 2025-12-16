@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace AE\History\Eel;
 
+use AE\History\Domain\Dto\Changes;
+use AE\History\Service\DiffService;
 use Neos\ContentRepository\Domain\Model\NodeType;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
-use Neos\ContentRepository\Exception\NodeTypeNotFoundException;
-use Neos\Diff\Diff;
 use Neos\Diff\Renderer\Html\HtmlArrayRenderer;
 use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
-use Neos\Media\Domain\Model\AssetInterface;
-use Neos\Media\Domain\Model\ImageInterface;
 use Neos\Neos\Domain\Service\UserService as DomainUserService;
 use Neos\Neos\EventLog\Domain\Model\Event;
 use Neos\Neos\Service\UserService;
@@ -35,6 +33,9 @@ class EventHelper implements ProtectedContextAwareInterface
 
     #[Flow\Inject]
     protected NodeTypeManager $nodeTypeManager;
+
+    #[Flow\Inject]
+    protected DiffService $diffService;
 
     public function identifier(?Event $event): string
     {
@@ -91,84 +92,11 @@ class EventHelper implements ProtectedContextAwareInterface
     }
 
     /**
-     * @return array<string, array{diff: string, propertyLabel: string, changed: string, original: string, type: string}>
-     * @throws NodeTypeNotFoundException
      */
-    public function changes(?Event $event): array
+    public function changes(?Event $event): Changes
     {
-        $data = $event?->getData();
-        if (!$data) {
-            return [];
-        }
-        $old = $data['old'] ?? null;
-        $new = $data['new'] ?? [];
-        $nodeType = $this->nodeTypeManager->getNodeType($data['nodeType']);
-        $changeNodePropertiesDefaults = $nodeType->getDefaultValuesForProperties();
-
         $renderer = new HtmlArrayRenderer();
-        $changes = [];
-        foreach ($new as $propertyName => $changedPropertyValue) {
-            if (($old === null && empty($changedPropertyValue))
-                || (isset($changeNodePropertiesDefaults[$propertyName])
-                    && $changedPropertyValue === $changeNodePropertiesDefaults[$propertyName]
-                )
-            ) {
-                continue;
-            }
-
-            $originalPropertyValue = ($old === null ? null : $old[$propertyName]);
-
-            if (!is_object($originalPropertyValue) && !is_object($changedPropertyValue)) {
-                $originalSlimmedDownContent = $this->renderSlimmedDownContent($originalPropertyValue);
-                $changedSlimmedDownContent = $this->renderSlimmedDownContent($changedPropertyValue);
-
-                $diff = new Diff(
-                    explode("\n", $originalSlimmedDownContent),
-                    explode("\n", $changedSlimmedDownContent),
-                    ['context' => 1]
-                );
-                /** @var array $diffArray */
-                $diffArray = $diff->render($renderer);
-                $this->postProcessDiffArray($diffArray);
-                if ($diffArray !== []) {
-                    $changes[$propertyName] = [
-                        'diff' => $diffArray,
-                        'propertyLabel' => $this->getPropertyLabel($propertyName, $nodeType),
-                        'type' => 'text',
-                    ];
-                }
-            } elseif ($originalPropertyValue instanceof ImageInterface
-                || $changedPropertyValue instanceof ImageInterface
-            ) {
-                $changes[$propertyName] = [
-                    'changed' => $changedPropertyValue,
-                    'original' => $originalPropertyValue,
-                    'propertyLabel' => $this->getPropertyLabel($propertyName, $nodeType),
-                    'type' => 'image',
-                ];
-            } elseif ($originalPropertyValue instanceof AssetInterface
-                || $changedPropertyValue instanceof AssetInterface
-            ) {
-                $changes[$propertyName] = [
-                    'changed' => $changedPropertyValue,
-                    'original' => $originalPropertyValue,
-                    'propertyLabel' => $this->getPropertyLabel($propertyName, $nodeType),
-                    'type' => 'asset',
-                ];
-            } elseif ($originalPropertyValue instanceof \DateTimeInterface
-                && $changedPropertyValue instanceof \DateTimeInterface
-            ) {
-                if ($changedPropertyValue->getTimestamp() !== $originalPropertyValue->getTimestamp()) {
-                    $changes[$propertyName] = [
-                        'changed' => $changedPropertyValue,
-                        'original' => $originalPropertyValue,
-                        'propertyLabel' => $this->getPropertyLabel($propertyName, $nodeType),
-                        'type' => 'datetime',
-                    ];
-                }
-            }
-        }
-        return $changes;
+        return $this->diffService->generateDiffForEvent($event, $renderer);
     }
 
     /**
@@ -195,6 +123,8 @@ class EventHelper implements ProtectedContextAwareInterface
             $contentSnippet = preg_replace('/<br[^>]*>/', "\n", $contentSnippet);
             $contentSnippet = preg_replace(['/<[^>]*>/', '/ {2,}/'], ' ', $contentSnippet);
             $content = trim($contentSnippet);
+        } else {
+            $content = (string)$propertyValue;
         }
         return $content;
     }

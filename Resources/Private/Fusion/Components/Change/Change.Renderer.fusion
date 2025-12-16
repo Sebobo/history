@@ -1,0 +1,26 @@
+prototype(AE.History:Component.Change.Renderer) < prototype(Neos.Fusion:Component) {
+    change = null
+
+    @private {
+        oldValuePreview = AE.History:Component.Change.Matcher {
+            type = ${props.change.oldType}
+            value = ${props.change.oldValue}
+        }
+        newValuePreview = AE.History:Component.Change.Matcher {
+            type = ${props.change.newType}
+            value = ${props.change.newValue}
+        }
+    }
+
+    renderer = afx`
+        <div class="neos-content-diff__block" @if={!props.change.diff && (private.oldValuePreview || private.newValuePreview)}>
+            <div class="neos-content-diff__block__base">
+                {private.oldValuePreview}
+            </div>
+            <div class="neos-content-diff__block__changed">
+                {private.newValuePreview}
+            </div>
+        </div>
+        <AE.History:Component.Change.Diff diff={props.change.diff}/>
+    `
+}

@@ -1,0 +1,32 @@
+prototype(AE.History:Component.Change.Matcher) < prototype(Neos.Fusion:Component) {
+    type = null
+    value = null
+
+    renderer = Neos.Fusion:Match {
+        @subject = ${props.type.value}
+        @default = afx`
+            <pre class="change-type--fallback">
+                {String.htmlSpecialChars(props.value)}
+            </pre>
+        `
+        image = AE.History:Component.Change.Image {
+            asset = ${Json.parse(props.value)}
+        }
+        asset = AE.History:Component.Change.Asset {
+            asset = ${Json.parse(props.value)}
+        }
+        datetime = AE.History:Component.Change.DateTime {
+            dateTime = ${props.value}
+        }
+        text = afx`
+            <pre>
+                {String.htmlSpecialChars(props.value)}
+            </pre>
+        `
+        boolean = afx`
+            <pre class="change-type--boolean">
+                {props.value}
+            </pre>
+        `
+    }
+}

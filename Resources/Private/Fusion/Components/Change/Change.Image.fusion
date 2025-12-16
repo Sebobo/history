@@ -1,0 +1,13 @@
+prototype(AE.History:Component.Change.Image) < prototype(Neos.Fusion:Component) {
+    asset = null
+
+    renderer = afx`
+        <img
+            src={props.asset.src}
+            alt={props.asset.alt}
+            title={props.asset.title}
+        />
+    `
+
+    @if.hasAsset = ${Type.isArray(this.asset)}
+}

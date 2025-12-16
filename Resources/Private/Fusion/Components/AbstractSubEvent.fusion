@@ -4,16 +4,10 @@ prototype(Neos.Neos:History.PublishedNode.AbstractSubEvent) < prototype(Neos.Fus
     event = ${event}
     descriptionTranslationId = ''
     descriptionTranslationArguments = ${{}}
-    linkedNode = Neos.Fusion:Template {
-        templatePath = 'resource://Neos.Neos/Private/Templates/Module/Management/History/NodeLink.html'
-        event = ${event}
-        @process.trim = ${String.trim(value)}
-    }
-    user = Neos.Fusion:Template {
-        templatePath = 'resource://Neos.Neos/Private/Templates/Module/Management/History/User.html'
-        event = ${event}
-        @process.trim = ${String.trim(value)}
-    }
+    linkedNode = afx`
+        <strong>{event.data.nodeLabel}</strong>
+    `
+    user = ${AE.History.Event.userName(event, 'fullFirstName')}
 
     @context.eventsOfMatchedType = ${[event]}
 
@@ -36,17 +30,17 @@ prototype(Neos.Neos:History.PublishedNode.AbstractSubEvent) < prototype(Neos.Fus
                 {!props.event.data.old || !private.changes ? private.description : ''}
                 <details
                     class="neos-history-event-details"
+                    name="changes"
                     @if={props.event.data.old && private.changes}
                 >
-                    <summary>{private.description}</summary>
+                    <summary>
+                        {private.description}
+                    </summary>
                     <div class="neos-content-diff">
                         <Neos.Fusion:Loop items={private.changes} itemName="change">
                             <div class="neos-content-diff__change">
                                 <strong>{change.propertyLabel}</strong>
-                                <AE.History:Component.Change.Text change={change} @if={change.type == 'text'}/>
-                                <AE.History:Component.Change.Image change={change} @if={change.type == 'image'}/>
-                                <AE.History:Component.Change.Asset change={change} @if={change.type == 'asset'}/>
-                                <AE.History:Component.Change.DateTime change={change} @if={change.type == 'datetime'}/>
+                                <AE.History:Component.Change.Renderer change={change}/>
                             </div>
                         </Neos.Fusion:Loop>
                     </div>

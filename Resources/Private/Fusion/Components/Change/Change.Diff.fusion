@@ -1,8 +1,8 @@
-prototype(AE.History:Component.Change.Text) < prototype(Neos.Fusion:Component) {
-    change = null
+prototype(AE.History:Component.Change.Diff) < prototype(Neos.Fusion:Component) {
+    diff = null
 
     renderer = afx`
-        <Neos.Fusion:Loop items={props.change.diff} itemName="blocks">
+        <Neos.Fusion:Loop items={props.diff} itemName="blocks" @if={Type.isArray(props.diff)}>
             <Neos.Fusion:Loop items={blocks} itemName="block">
                 <div class="neos-content-diff__block">
                     <div class="neos-content-diff__block__base">
@@ -18,5 +18,8 @@ prototype(AE.History:Component.Change.Text) < prototype(Neos.Fusion:Component) {
                 </div>
             </Neos.Fusion:Loop>
         </Neos.Fusion:Loop>
+        <pre @if={Type.isString(props.diff)}>
+            {props.diff}
+        </pre>
     `
 }

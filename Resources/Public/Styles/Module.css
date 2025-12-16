@@ -48,6 +48,11 @@
             background-color: white;
             color: var(--textOnWhite);
 
+            pre {
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
             ins,
             ins a {
                 color: var(--successText);
@@ -208,6 +213,10 @@
                         text-decoration: underline;
                     }
 
+                    strong {
+                        font-weight: bold;
+                    }
+
                     .neos-history-event-details {
                         user-select: none;
                         width: 100%;
@@ -218,8 +227,13 @@
                             line-height: normal;
                             cursor: pointer;
 
+                            &:hover {
+                                color: var(--blue);
+                            }
+
                             i {
                                 vertical-align: top;
+                                margin-right: 1ch;
                             }
                         }
                     }
