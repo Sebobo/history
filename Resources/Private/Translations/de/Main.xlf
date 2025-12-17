@@ -4,23 +4,23 @@
         <body>
             <trans-unit id="site" xml:space="preserve">
                 <source>Site</source>
-                <target>Seite</source>
+                <target>Seite</target>
             </trans-unit>
             <trans-unit id="site.all" xml:space="preserve">
                 <source>All</source>
-                <target>Alle</source>
+                <target>Alle</target>
             </trans-unit>
             <trans-unit id="user.all" xml:space="preserve">
                 <source>All</source>
-                <target>Alle</source>
+                <target>Alle</target>
             </trans-unit>
             <trans-unit id="startDate.label" xml:space="preserve">
                 <source>Start Date</source>
-                <target>Startdatum</source>
+                <target>Startdatum</target>
             </trans-unit>
             <trans-unit id="endDate.label" xml:space="preserve">
                 <source>End Date</source>
-                <target>Enddatum</source>
+                <target>Enddatum</target>
             </trans-unit>
         </body>
     </file>
